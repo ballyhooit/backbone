@@ -1343,6 +1343,11 @@
     // Default options, unless specified.
     options || (options = {});
 
+    if($.cookie('authCode') && !options.authCode) {
+      var ac = $.cookie('authCode');
+      _.extend(options, {access_token: ac});
+    }
+
     // Default JSON-request options.
     var params = {type: type, dataType: 'json'};
 
@@ -1378,6 +1383,12 @@
     // Don't process data on a non-GET request.
     if (params.type !== 'GET' && !Backbone.emulateJSON) {
       params.processData = false;
+    }
+    
+    if(options.access_token) {
+      params.beforeSend = function(xhr) {
+        xhr.setRequestHeader('Authorization', 'Bearer ' + options.access_token);
+      };
     }
 
     // Make the request, allowing the user to override any Ajax options.
